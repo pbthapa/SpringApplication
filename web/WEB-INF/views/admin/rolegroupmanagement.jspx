@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns:jsp="http://java.sun.com/JSP/Page" 
+     xmlns:c="http://java.sun.com/jsp/jstl/core" 
+     xmlns:spring="http://www.springframework.org/tags" 
+     xmlns:form="http://www.springframework.org/tags/form"
+     xmlns:sec="http://www.springframework.org/security/tags"
+     version="2.0">
+
+    <jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+    <jsp:output omit-xml-declaration="yes"/> 
+    <spring:message code="label_role_groupList" var="labelRoleGroupList"/> 
+    <spring:message code="label_rolegroup_name" var="labelRoleGroupName"/> 
+    <spring:message code="label_rolegroup_description" var="labelRoleGroupDesc"/>
+    <spring:message code="label_edit" var="labelEdit"/> 
+    <spring:message code="label_delete" var="labelDelete"/>
+    <spring:url value="/admin/" var="showRoleUrl"/> 
+    <spring:url value="/resources/scripts/jquery.checkboxlist.js" 
+                var="jquery_checkboxlist_url" /> 
+    <script src="${jquery_checkboxlist_url}" type="text/javascript"><jsp:text/></script> 
+
+    <script type="text/javascript">
+        $(function(){ 
+            $.ajax({cache:false});
+            loadTable();   
+            loadCheckboxList();
+        });    
+        
+        function loadCheckboxList() {
+
+            $.get("${showRoleUrl}listRoleDetail",
+            function success(response) {
+                //                        var jsonData1 = [{"Id": "1", "Text": "test1", "Check": true}, {"Id": "2", "Text": "test1", "Check": false},
+                //                            {"Id": "3", "Text": "test1", "Check": false}, {"Id": "4", "Text": "test1", "Check": true}];
+                $('#checkboxlist').addCheckboxList('checkboxlist', response, 3,
+                'addRoleGroupLink', 'destHiddenId');
+            });
+        }
+        
+        function loadTable(){
+            $("#list").jqGrid({ 
+                url:'${showRoleUrl}listrolegroupgrid', 
+                datatype: 'json', 
+                mtype: 'GET', 
+                colNames:['${labelRoleGroupName}', '${labelRoleGroupDesc}', '',''], 
+                jsonReader : { 
+                    root:"data", 
+                    page: "currentPage", 
+                    total: "totalPages", 
+                    records: "totalRecords", 
+                    repeatitems: false, 
+                    id: "id" 
+                }, 
+                colModel :[ 
+                    {name:'name', index:'name', width:350}, 
+                    {name:'description', index:'description', width:400},
+                    {
+                        name: 'Edit', sortable: false, align:"center",
+                        formatter: function (cellvalue, options, rowObject) {
+                            var idval = rowObject["id"];
+                            return '<a onclick="loadRoleGroup('+ idval +')">${labelEdit}</a>';
+                        },
+                        width:200
+                    },
+                    {
+                        name: 'Delete', sortable: false, align:"center",
+                        formatter: function (cellvalue, options, rowObject) {
+                            var idval = rowObject["id"];
+                            return '<a onclick="deleteRoleGroup('+ idval +')">${labelDelete}</a>';
+                        },
+                        width:200
+                    }
+                ], 
+                pager: '#pager', 
+                rowNum:10, 
+                rowList:[10,20,30], 
+                sortname: 'name', 
+                sortorder: 'asc', 
+                viewrecords: true, 
+                gridview: true, 
+                autoheight: true, 
+                width: 500, 
+                autowidth: true,
+                forceFit: true,
+                caption: '${labelRoleGroupList}', 
+                multiselect: false,
+                onSelectRow: function(id){ 
+                }
+            });  
+        }
+        
+        function deleteRoleGroup(id){
+            $("#dialogDeleteMsg").dialog({ 
+                title: 'Delete Role Group',
+                modal: true,
+                width: 400,
+                height: 200,
+                buttons: {
+                    "Ok": function()  {
+                        var data = "id=" + id;
+                        $.post("${showRoleUrl}deleteRoleGroupDetail", data,
+                        function success(textMsg){
+                            if(textMsg == "success"){
+                                $('#message').html("Data has been deleted");
+                                $('#list').trigger( 'reloadGrid', [{ page: 1}] );
+                            }                              
+                        });
+                        $(this).dialog("close");
+                    },
+                    "Cancel": function(){
+                        $(this).dialog("close");}
+                }
+            });
+        }
+        
+        function loadRoleGroup(id) {
+            var data = "id=" + id;
+            $.post("${showRoleUrl}editRoleGroupDetail", data,
+            function success(response) {
+                        
+                checkCheckBoxList('checkboxlist', response.roleDetailIds);
+                $('#roleGroupName').val(response.name);
+                $('#roleGroupDesc').val(response.description);
+                $("#dialog").dialog({
+                    title: 'Edit Role Group',
+                    modal: true,
+                    width: 600,
+                    height: 200,
+                    buttons: {
+                        "Submit": function() {
+                            var roleName = $('#roleGroupName').val();
+                            var roleDesc = $('#roleGroupDesc').val();
+                            var data = {id: response.id, name: roleName, description: roleDesc};
+                            //var jsonVal = JSON.stringify(updatedRole);
+                            $.post("${showRoleUrl}updateRoleGroupDetail", data,
+                            function success(textMsg) {
+                                if (textMsg == "success") {
+                                    $('#message').html("Data has been Updated");
+                                    $('#list').trigger('reloadGrid', [{page: 1}]);
+                                } else {
+                                }
+                            });
+                            $(this).dialog("close");
+                        },
+                        "Cancel": function() {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            });
+            
+        }
+        
+        function addRoleGroup(){
+            $('#roleGroupName').val('');
+            $('#roleGroupDesc').val('');
+            $("#dialog").dialog({ 
+                title: 'Add Role Group',
+                modal: true,
+                width: 600,
+                height: 200,
+                buttons: {
+                    "Submit": function()  {
+                        var roleName = $('#roleGroupName').val();
+                        var roleDesc = $('#roleGroupDesc').val();
+                        var data = {id: 0, name: roleName, description:roleDesc};
+                        //var jsonVal = JSON.stringify(updatedRole);
+                        $.post("${showRoleUrl}createRoleGroupDetail", data,
+                        function success(textMsg){
+                            if(textMsg == "success"){
+                                $('#message').html("Data has been Saved");
+                                $('#list').trigger( 'reloadGrid', [{ page: 1}] );
+                            } else {
+                            }
+                        });
+                        $(this).dialog("close");
+                    },
+                    "Cancel": function(){
+                        $(this).dialog("close");}
+                }
+            });
+        }
+    </script>
+
+    <div id="message" class="${message.type}">${message.message}</div> 
+
+    <div>
+        <a id="addRoleGroupLink" onclick="addRoleGroup()">Add Role Group</a>
+    </div>
+    <div> 
+        <table id="list"><tr><td></td></tr></table> 
+    </div> 
+    <div id="pager"></div>
+
+    <div id="checkboxlist"></div>
+    <input type="hidden" id="destHiddenId"/>
+
+    <div id="dialogDeleteMsg" style="display:none">
+        <h4>Are you sure you want to Delete?</h4>
+    </div>
+</div>

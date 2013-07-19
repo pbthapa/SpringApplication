@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?> 
+<div id="menu" xmlns:jsp="http://java.sun.com/JSP/Page" 
+     xmlns:c="http://java.sun.com/jsp/jstl/core" 
+     xmlns:spring="http://www.springframework.org/tags" 
+     xmlns:sec="http://www.springframework.org/security/tags"
+     version="2.0"> 
+    <jsp:directive.page contentType="text/html;charset=UTF-8" /> 
+    <jsp:output omit-xml-declaration="yes" /> 
+    <spring:message code="home_text" var="homeText"/> 
+    <spring:message code="menu_header_text" var="menuHeaderText"/> 
+    <spring:message code="menu_add_contact" var="menuAddContact"/> 
+    <spring:message code="menu_role_mgmt" var="menuRoleMgmt"/> 
+    <spring:message code="menu_rolegroup_mgmt" var="menuRoleGroupMgmt"/> 
+    <spring:message code="menu_user_mgmt" var="menuUserMgmt"/> 
+    <spring:url value="/contacts" var="homeUrl"/> 
+    <spring:url value="/contacts?form" var="addContactUrl"/> 
+    <spring:url value="/admin?form" var="roleMgmtUrl"/> 
+    <spring:url value="/admin/groupList?form" var="roleGroupMgmtUrl"/> 
+    <spring:url value="/admin/userList?form" var="userMgmtUrl"/> 
+    <script>
+        $(function(){
+            $('#coolMenu').find('> li').hover(function(){
+                $(this).find('ul')
+                .removeClass('noJS')
+                .stop(true, true).slideToggle('fast');
+            });
+        });
+    </script>
+    <ul id="coolMenu">
+        <li><a href="${homeUrl}">${homeText}</a> </li>
+        <sec:authorize access="hasRole('ADD_CONTACT_ROLE')"> 
+            <li><a href="${addContactUrl}">${menuAddContact}</a> </li>
+        </sec:authorize>
+        <li>
+            <a>Management</a>
+            <ul class="noJS">
+                <sec:authorize access="hasRole('MANAGE_ROLEDETAIL_ROLE')"> 
+                    <li><a href="${roleMgmtUrl}">${menuRoleMgmt}</a></li>
+                </sec:authorize>
+                <sec:authorize access="hasRole('MANAGE_ROLEGROUP_ROLE')"> 
+                    <li><a href="${roleGroupMgmtUrl}">${menuRoleGroupMgmt}</a></li>
+                </sec:authorize>
+                <sec:authorize access="hasRole('MANAGE_USER_ROLE')"> 
+                    <li><a href="${userMgmtUrl}">${menuUserMgmt}</a></li>
+                </sec:authorize>
+            </ul>
+        </li>
+    </ul>
+</div>
