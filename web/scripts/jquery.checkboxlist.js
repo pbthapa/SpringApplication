@@ -22,10 +22,10 @@ function createControlFromJson(appendToId, jsonData, CellNoInRow) {
             if (data.Check) {
                 checkbox.setAttribute('checked', 'checked');
             }
-            var span = document.createElement('span');
-            span.appendChild(document.createTextNode(data.name));
-            cell.appendChild(checkbox);
-            cell.appendChild(span);
+            var label = document.createElement('label');
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(data.name));
+            cell.appendChild(label);
             parentRow.appendChild(cell);
             if ((k + CellNoInRow) % CellNoInRow == 1 || k == jsonData.length - 1)
             {
@@ -79,7 +79,7 @@ function loadHiddenField(appendToId, destHiddenId){
         createControlFromJson(appendToId, jsonData, CellNoInRow, submitId, destHiddenId);
         $('#' + submitId).bind('click', function() {
 
-        });
+            });
         var fnc = function() {
             loadHiddenField(appendToId, destHiddenId);
         };
@@ -93,4 +93,12 @@ function loadHiddenField(appendToId, destHiddenId){
     };
 
 
+})(jQuery); 
+
+
+(function($) {
+    // jQuery plugin definition
+    $.fn.loadHiddenFieldfromCheckBox = function(appendToId, destHiddenId) {
+        loadHiddenField(appendToId, destHiddenId);
+    };
 })(jQuery); 

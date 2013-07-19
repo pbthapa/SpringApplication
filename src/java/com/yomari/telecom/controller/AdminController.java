@@ -14,8 +14,11 @@ import com.yomari.telecom.model.User;
 import com.yomari.telecom.service.RoleGroupService;
 import com.yomari.telecom.service.RoleService;
 import com.yomari.telecom.service.UserService;
+import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,6 +174,25 @@ public class AdminController {
             RedirectAttributes redirectAttributes, Locale locale) {
         roleGroupService.save(roleGroup);
         return "success";
+    }
+
+    @RequestMapping(value = "/addEditRoleGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public boolean addEditRoleGroup(RoleGroup roleGroup) {
+        Set<RoleDetail> roleDetails = new HashSet<RoleDetail>();
+        for (BigDecimal detailId : roleGroup.getRoleDetailIds()) {
+            RoleDetail roleDetail = new RoleDetail();
+            roleDetail.setId(detailId.intValue());
+            roleDetails.add(roleDetail);
+        }
+        roleGroup.setRoleDetails(roleDetails);
+        RoleGroup roleGroupSaved = roleGroupService.save(roleGroup);
+
+        if (roleGroupSaved == null) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     @RequestMapping(value = "/listrolegroupgrid", method = RequestMethod.GET, produces = "application/json")
