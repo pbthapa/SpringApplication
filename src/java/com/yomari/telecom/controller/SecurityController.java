@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  *
  * @author Dell
  */
-@RequestMapping("/security")
+@RequestMapping("/check")
 @Controller
 public class SecurityController {
 

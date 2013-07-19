@@ -31,19 +31,21 @@
         <sec:authorize access="hasRole('ADD_CONTACT_ROLE')"> 
             <li><a href="${addContactUrl}">${menuAddContact}</a> </li>
         </sec:authorize>
-        <li>
-            <a>Management</a>
-            <ul class="noJS">
-                <sec:authorize access="hasRole('MANAGE_ROLEDETAIL_ROLE')"> 
-                    <li><a href="${roleMgmtUrl}">${menuRoleMgmt}</a></li>
-                </sec:authorize>
-                <sec:authorize access="hasRole('MANAGE_ROLEGROUP_ROLE')"> 
-                    <li><a href="${roleGroupMgmtUrl}">${menuRoleGroupMgmt}</a></li>
-                </sec:authorize>
-                <sec:authorize access="hasRole('MANAGE_USER_ROLE')"> 
-                    <li><a href="${userMgmtUrl}">${menuUserMgmt}</a></li>
-                </sec:authorize>
-            </ul>
-        </li>
+        <sec:authorize access="hasAnyRole('MANAGE_ROLEDETAIL_ROLE','MANAGE_ROLEGROUP_ROLE','MANAGE_USER_ROLE')">
+            <li>
+                <a>Management</a>
+                <ul class="noJS">
+                    <sec:authorize access="hasRole('MANAGE_ROLEDETAIL_ROLE')"> 
+                        <li><a href="${roleMgmtUrl}">${menuRoleMgmt}</a></li>
+                    </sec:authorize>
+                    <sec:authorize access="hasRole('MANAGE_ROLEGROUP_ROLE')"> 
+                        <li><a href="${roleGroupMgmtUrl}">${menuRoleGroupMgmt}</a></li>
+                    </sec:authorize>
+                    <sec:authorize access="hasRole('MANAGE_USER_ROLE')"> 
+                        <li><a href="${userMgmtUrl}">${menuUserMgmt}</a></li>
+                    </sec:authorize>
+                </ul>
+            </li>
+        </sec:authorize>
     </ul>
 </div>
