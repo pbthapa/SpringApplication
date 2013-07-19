@@ -35,6 +35,13 @@
                 'submit', 'destHiddenId');
             });
         }
+        
+        function resetForm(){
+            $('#roleGroupId').val('0');
+                $('#roleGroupName').val('');
+                $('#roleGroupDesc').val('');
+                $('input[type=checkbox]').removeAttr('checked');
+        }
 
         function loadTable() {
             $("#list").jqGrid({
@@ -159,6 +166,7 @@
             var roleDesc = $('#roleGroupDesc').val();
             var roleDetailIds = $('#destHiddenId').val();
             submitForm(rolegroupId, roleName, roleDesc, roleDetailIds);
+            resetForm();
         }
 
         function submitForm(rolegroupId, roleName, roleDesc, roleDetailIds) {
@@ -234,7 +242,7 @@
             <tr>
                 <td colspan="2">
                     <input type="button" id="submit" value="Submit" onclick="addEditRoleGroup();"/>
-                    <input type="button" id="reset" value="Reset"/>
+                    <input type="button" id="reset" value="Reset" onclick="resetForm();"/>
                 </td>
             </tr>
         </table>
