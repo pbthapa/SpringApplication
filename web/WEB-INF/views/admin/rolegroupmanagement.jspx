@@ -107,7 +107,7 @@
                         $.post("${showRoleUrl}deleteRoleGroupDetail", data,
                         function success(textMsg) {
                             if (textMsg == "success") {
-                                $('#message').html("Data has been deleted");
+                                $('#message').html("Data has been deleted").addClass("success");
                                 $('#list').trigger('reloadGrid', [{page: 1}]);
                             }
                         });
@@ -175,7 +175,7 @@
             $.post("${showRoleUrl}addEditRoleGroup", data,
             function success(status) {
                 if (status) {
-                    $('#message').html("Data has been Saved");
+                    $('#message').html("Data has been Saved").addClass("success");
                     $('#list').trigger('reloadGrid', [{page: 1}]);
                 } else {
                 }
