@@ -109,6 +109,7 @@
                             if (textMsg == "success") {
                                 $('#message').html("Data has been deleted");
                                 $('#list').trigger('reloadGrid', [{page: 1}]);
+                                resetForm();
                             }
                         });
                         $(this).dialog("close");
@@ -246,9 +247,6 @@
                 </td>
             </tr>
         </table>
-    </div>
-    <div>
-        <a id="addRoleGroupLink" onclick="addRoleGroup()">Add Role Group</a>
     </div>
     <div> 
         <table id="list"><tr><td></td></tr></table> 
