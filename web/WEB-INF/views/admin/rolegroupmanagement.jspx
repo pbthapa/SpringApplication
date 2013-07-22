@@ -38,9 +38,9 @@
         
         function resetForm(){
             $('#roleGroupId').val('0');
-                $('#roleGroupName').val('');
-                $('#roleGroupDesc').val('');
-                $('input[type=checkbox]').removeAttr('checked');
+            $('#roleGroupName').val('');
+            $('#roleGroupDesc').val('');
+            $('input[type=checkbox]').removeAttr('checked');
         }
 
         function loadTable() {
@@ -130,32 +130,6 @@
                 $('#roleGroupId').val(response.id);
                 $('#roleGroupName').val(response.name);
                 $('#roleGroupDesc').val(response.description);
-                $("#dialog").dialog({
-                    title: 'Edit Role Group',
-                    modal: true,
-                    width: 600,
-                    height: 200,
-                    buttons: {
-                        "Submit": function() {
-                            var roleName = $('#roleGroupName').val();
-                            var roleDesc = $('#roleGroupDesc').val();
-                            var data = {id: response.id, name: roleName, description: roleDesc};
-                            //var jsonVal = JSON.stringify(updatedRole);
-                            $.post("${showRoleUrl}updateRoleGroupDetail", data,
-                            function success(textMsg) {
-                                if (textMsg == "success") {
-                                    $('#message').html("Data has been Updated");
-                                    $('#list').trigger('reloadGrid', [{page: 1}]);
-                                } else {
-                                }
-                            });
-                            $(this).dialog("close");
-                        },
-                        "Cancel": function() {
-                            $(this).dialog("close");
-                        }
-                    }
-                });
             });
 
         }
@@ -179,37 +153,6 @@
                     $('#message').html("Data has been Saved").addClass("success");
                     $('#list').trigger('reloadGrid', [{page: 1}]);
                 } else {
-                }
-            });
-        }
-
-        function addRoleGroup() {
-            $('#roleGroupName').val('');
-            $('#roleGroupDesc').val('');
-            $("#dialog").dialog({
-                title: 'Add Role Group',
-                modal: true,
-                width: 600,
-                height: 200,
-                buttons: {
-                    "Submit": function() {
-                        var roleName = $('#roleGroupName').val();
-                        var roleDesc = $('#roleGroupDesc').val();
-                        var data = {id: 0, name: roleName, description: roleDesc};
-                        //var jsonVal = JSON.stringify(updatedRole);
-                        $.post("${showRoleUrl}createRoleGroupDetail", data,
-                        function success(textMsg) {
-                            if (textMsg == "success") {
-                                $('#message').html("Data has been Saved");
-                                $('#list').trigger('reloadGrid', [{page: 1}]);
-                            } else {
-                            }
-                        });
-                        $(this).dialog("close");
-                    },
-                    "Cancel": function() {
-                        $(this).dialog("close");
-                    }
                 }
             });
         }

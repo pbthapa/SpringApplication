@@ -45,4 +45,11 @@ public class UserServiceImpl implements UserService {
     public Page<User> findAllByPage(Pageable pageable) {
         return userRepository.findAllUser(pageable);
     }
+
+    @Override
+    public User findUserByUserId(Integer id) {
+        User user = userRepository.findUserByUserId(id);
+        user.setRoleGroupIds(userRepository.findRoleGroupIdsByUserId(id));
+        return user;
+    }
 }

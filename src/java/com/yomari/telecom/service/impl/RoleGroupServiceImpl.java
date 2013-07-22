@@ -4,9 +4,11 @@
  */
 package com.yomari.telecom.service.impl;
 
+import com.google.common.collect.Lists;
 import com.yomari.telecom.model.RoleGroup;
 import com.yomari.telecom.repository.RoleGroupRepository;
 import com.yomari.telecom.service.RoleGroupService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,5 +51,10 @@ public class RoleGroupServiceImpl implements RoleGroupService {
         RoleGroup roleGroup = roleGroupRepository.findRoleGroupById(roleGroupId);
         roleGroup.setRoleDetailIds(roleGroupRepository.findRoleDetailByRoleGroupId(roleGroupId));
         return roleGroup;
+    }
+
+    @Override
+    public List<RoleGroup> findAllRoleGroups() {
+        return Lists.newArrayList(roleGroupRepository.findAllRoleGroupsOnly());
     }
 }

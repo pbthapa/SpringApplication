@@ -5,6 +5,7 @@
 package com.yomari.telecom.service;
 
 import com.yomari.telecom.model.RoleGroup;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -23,4 +24,6 @@ public interface RoleGroupService {
     public void deleteRoleGroupById(Integer id);
 
     public RoleGroup findRoleDetailByRoleGroupId(Integer roleGroupId);
+
+    public List<RoleGroup> findAllRoleGroups();
 }

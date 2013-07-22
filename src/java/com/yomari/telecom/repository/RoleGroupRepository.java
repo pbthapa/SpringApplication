@@ -27,4 +27,7 @@ public interface RoleGroupRepository extends PagingAndSortingRepository<RoleGrou
     @Query("select new RoleGroup(r.id, r.name, r.description) from RoleGroup r"
     + " where r.id = :id")
     public RoleGroup findRoleGroupById(@Param("id") Integer roleGroupId);
+
+    @Query("select new RoleGroup(r.id, r.name, r.description) from RoleGroup r")
+    public List<RoleGroup> findAllRoleGroupsOnly();
 }

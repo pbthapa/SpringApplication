@@ -22,4 +22,6 @@ public interface UserService {
     User save(User user);
 
     public Page<User> findAllByPage(Pageable pageable);
+
+    public User findUserByUserId(Integer id);
 }

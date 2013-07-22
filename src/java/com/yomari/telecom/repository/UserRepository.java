@@ -5,6 +5,7 @@
 package com.yomari.telecom.repository;
 
 import com.yomari.telecom.model.User;
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,4 +27,10 @@ public interface UserRepository extends PagingAndSortingRepository<User, Integer
 
     @Query("select new User(u.id, u.username, u.active) from User u")
     public Page<User> findAllUser(Pageable pageable);
+
+    @Query("select new User(u.id, u.username, u.active) from User u "
+    + "where u.id = :id")
+    public User findUserByUserId(@Param("id") Integer id);
+
+    public List<BigDecimal> findRoleGroupIdsByUserId(Integer id);
 }

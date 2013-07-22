@@ -5,6 +5,7 @@
 package com.yomari.telecom.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,9 +22,11 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.SqlResultSetMapping;
+import javax.persistence.SqlResultSetMappings;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Size;
+import org.hibernate.annotations.NamedNativeQueries;
 import org.hibernate.annotations.NamedNativeQuery;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -34,11 +37,21 @@ import org.hibernate.validator.constraints.NotEmpty;
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "ntc_user")
-@SqlResultSetMapping(name = "User.findCommaSeparatedRolesByUserId", columns =
-@ColumnResult(name = "name"))
-@NamedNativeQuery(name = "User.findCommaSeparatedRolesByUserId", query = "select name from ntc_role_detail "
-+ "where role_id in (select role_id from ntc_role_detail_group where role_group_id "
-+ "in (select role_group_id from ntc_role_group_to_user where id= ?))", resultSetMapping = "User.findCommaSeparatedRolesByUserId")
+@SqlResultSetMappings({
+    @SqlResultSetMapping(name = "User.findCommaSeparatedRolesByUserId", columns =
+    @ColumnResult(name = "name")),
+    @SqlResultSetMapping(name = "User.findRoleGroupIdsByUserId", columns =
+    @ColumnResult(name = "role_group_id"))
+})
+@NamedNativeQueries({
+    @NamedNativeQuery(name = "User.findCommaSeparatedRolesByUserId", query = "select name from ntc_role_detail "
+    + "where role_id in (select role_id from ntc_role_detail_group where role_group_id "
+    + "in (select role_group_id from ntc_role_group_to_user where id= ?))",
+    resultSetMapping = "User.findCommaSeparatedRolesByUserId"),
+    @NamedNativeQuery(name = "User.findRoleGroupIdsByUserId",
+    query = "select role_group_id from ntc_role_group_to_user where id = ?",
+    resultSetMapping = "User.findRoleGroupIdsByUserId")
+})
 public class User implements Serializable {
 
     @Id
@@ -63,6 +76,8 @@ public class User implements Serializable {
     Set<RoleGroup> roleGroups = new HashSet<RoleGroup>();
     @Transient
     private List<String> roleDetailList;
+    @Transient
+    List<BigDecimal> roleGroupIds = new ArrayList<BigDecimal>();
 
     public User() {
     }
@@ -128,5 +143,13 @@ public class User implements Serializable {
 
     public void setRoleDetailList(List<String> roleDetailList) {
         this.roleDetailList = roleDetailList;
+    }
+
+    public List<BigDecimal> getRoleGroupIds() {
+        return roleGroupIds;
+    }
+
+    public void setRoleGroupIds(List<BigDecimal> roleGroupIds) {
+        this.roleGroupIds = roleGroupIds;
     }
 }

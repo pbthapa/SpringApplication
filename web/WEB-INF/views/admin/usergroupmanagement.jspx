@@ -17,19 +17,39 @@
     <spring:message code="label_edit" var="labelEdit"/> 
     <spring:message code="label_delete" var="labelDelete"/>
     <spring:url value="/admin/" var="showUserUrl"/> 
+    <spring:url value="/resources/scripts/jquery.checkboxlist.js" 
+                var="jquery_checkboxlist_url" /> 
+    <script src="${jquery_checkboxlist_url}" type="text/javascript"><jsp:text/></script> 
 
     <script type="text/javascript">
         $(function(){ 
             $.ajax({cache:false});
             loadTable();    
-        });    
+            loadCheckboxList();
+        });  
+        
+        function loadCheckboxList() {
+            $.get("${showUserUrl}listRoleGroup",
+            function success(response) {
+                $('#checkboxlist').addCheckboxList('checkboxlist', response, 3,
+                'submit', 'destHiddenId');
+            });
+        }
+        
+        function resetForm(){
+            $('#userId').val('0');
+            $('#userName').val('');
+            $('#password').val('');
+            $('#active').removeAttr('checked');
+            $('input[type=checkbox]').removeAttr('checked');
+        }
         
         function loadTable(){
             $("#list").jqGrid({ 
                 url:'${showRoleUrl}listusergrid', 
                 datatype: 'json', 
                 mtype: 'GET', 
-                colNames:['User Name', 'Active', '',''], 
+                colNames:['User Name', 'Active', ''], 
                 jsonReader : { 
                     root:"data", 
                     page: "currentPage", 
@@ -45,17 +65,7 @@
                         name: 'Edit', sortable: false, align:"center",
                         formatter: function (cellvalue, options, rowObject) {
                             var idval = rowObject["id"];
-                            return '<a>Edit</a>'
-                            //return '<a onclick="loadRoleGroup('+ idval +')">${labelEdit}</a>';
-                        },
-                        width:200
-                    },
-                    {
-                        name: 'Delete', sortable: false, align:"center",
-                        formatter: function (cellvalue, options, rowObject) {
-                            var idval = rowObject["id"];
-                            return '<a>Delete</a>'
-                            //return '<a onclick="deleteRoleGroup('+ idval +')">${labelDelete}</a>';
+                            return '<a onclick="loadUserGroup('+ idval +')">${labelEdit}</a>';
                         },
                         width:200
                     }
@@ -77,32 +87,83 @@
             });  
         }
 
+        function loadUserGroup(id) {
+            var data = "id=" + id;
+            $.post("${showUserUrl}editUserGroup", data,
+            function success(response) {
+                checkCheckBoxList('checkboxlist', response.roleGroupIds);
+                $('#userId').val(response.id);
+                $('#userName').val(response.username);
+                $('#password').val(response.password);
+                $('#active').attr('checked',response.active);
+            });
+
+        }
+
+        function addEditUserGroup() {
+            $('#checkboxlist').loadHiddenFieldfromCheckBox('checkboxlist', 'destHiddenId');
+            var userId = $('#userId').val();
+            var userName = $('#userName').val();
+            var password = $('#password').val();
+            var active = $('#active').is(':checked')
+            var roleGroupIds = $('#destHiddenId').val();
+            submitForm(userId, userName, password, active, roleGroupIds);
+            resetForm();
+        }
+
+        function submitForm(userId, userName, password, active, roleGroupIds) {
+            var data = {id: userId, username: userName, password: password, active: active, roleGroupIds: roleGroupIds};
+            //var jsonVal = JSON.stringify(updatedRole);
+            $.post("${showUserUrl}addEditUserGroup", data,
+            function success(status) {
+                if (status) {
+                    $('#message').html("Data has been Saved").addClass("success");
+                    $('#list').trigger('reloadGrid', [{page: 1}]);
+                } else {
+                }
+            });
+        }
     </script>
+    <div id="message" class="${message.type}">${message.message}</div> 
     <h1>User Management</h1> 
-    <div id="userManagement">
-        <form:form modelAttribute="user" id="userManagementForm" method="post">
-            <c:if test="${not empty message}"> 
-                <div id="message" class="${message.type}">${message.message}</div> 
-            </c:if> 
-            <form:label path="username"> 
-                User Name* 
-            </form:label> 
-            <form:textarea path="username" /> 
-            <div> 
-                <form:errors path="username" cssClass="error" /> 
-            </div> 
-            <p/> 
-            <form:label path="active"> 
-                Active 
-            </form:label> 
-            <form:checkbox path="active" /> 
-            <div></div>  
-            <p/>
-            <button id="submitId" type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
-                <span class="ui-button-text">Submit</span>
-            </button> 
-        </form:form>
-    </div>        
+    <input type="hidden" id="destHiddenId"/>
+    <div class="formdata">
+        <table>
+            <tr>
+                <th colspan="2">
+                    Add/Edit User
+                </th>
+            </tr>
+            <tr>
+                <td>Username</td>
+                <td>
+                    <input id="userId" type="hidden" value="0"/>
+                    <input id="userName" type="text" size="30"/>
+                </td>
+            </tr>     
+            <tr>
+                <td>Password</td>
+                <td>
+                    <input id="password" type="password" size="30"/>
+                </td>
+            </tr>  
+            <tr>
+                <td>Active</td>
+                <td><input id="active" type="checkbox" /></td>
+            </tr> 
+            <tr>
+                <td>Role Group</td>
+                <td>
+                    <div id="checkboxlist"></div>                        
+                </td></tr>
+            <tr>
+                <td colspan="2">
+                    <input type="button" id="submit" value="Submit" onclick="addEditUserGroup();"/>
+                    <input type="button" id="reset" value="Reset" onclick="resetForm();"/>
+                </td>
+            </tr>
+        </table>
+    </div>
 
     <div> 
         <table id="list"><tr><td/></tr></table> 

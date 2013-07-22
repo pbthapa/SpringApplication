@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -151,15 +152,6 @@ public class AdminController {
         return roleGroup;
     }
 
-    @RequestMapping(value = "/updateRoleGroupDetail", method = RequestMethod.POST)
-    @ResponseBody
-    public String updateRoleGroupDetail(@Valid RoleGroup roleGroup, BindingResult bindingResult,
-            RedirectAttributes redirectAttributes, Locale locale) {
-        // redirectAttributes.addFlashAttribute("message", "Role Detail Updated Successfully");
-        roleGroupService.save(roleGroup);
-        return "success";
-    }
-
     @RequestMapping(value = "/deleteRoleGroupDetail", method = RequestMethod.POST)
     @ResponseBody
     public String deleteRoleGroupDetail(@RequestParam(value = "id") Integer id) {
@@ -168,24 +160,15 @@ public class AdminController {
         return "success";
     }
 
-    @RequestMapping(value = "/createRoleGroupDetail", method = RequestMethod.POST)
-    @ResponseBody
-    public String createRoleGroupDetail(@Valid RoleGroup roleGroup, BindingResult bindingResult,
-            RedirectAttributes redirectAttributes, Locale locale) {
-        roleGroupService.save(roleGroup);
-        return "success";
-    }
-
     @RequestMapping(value = "/addEditRoleGroup", method = RequestMethod.POST)
     @ResponseBody
     public boolean addEditRoleGroup(RoleGroup roleGroup) {
-        Set<RoleDetail> roleDetails = new HashSet<RoleDetail>();
         for (BigDecimal detailId : roleGroup.getRoleDetailIds()) {
             RoleDetail roleDetail = new RoleDetail();
             roleDetail.setId(detailId.intValue());
-            roleDetails.add(roleDetail);
+            roleGroup.getRoleDetails().add(roleDetail);
         }
-        roleGroup.setRoleDetails(roleDetails);
+
         RoleGroup roleGroupSaved = roleGroupService.save(roleGroup);
 
         if (roleGroupSaved == null) {
@@ -232,10 +215,8 @@ public class AdminController {
 
     // User Management stays here
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/userList", params = "form", method = RequestMethod.GET)
-    public String listUser(Model uiModel) {
-        User user = new User();
-        uiModel.addAttribute("user", user);
+    @RequestMapping(value = "/userList", params = "form")
+    public String listUser() {
         return "role/userlist";
     }
 
@@ -272,5 +253,39 @@ public class AdminController {
         userGrid.setTotalRecords(userPage.getTotalElements());
         userGrid.setData(Lists.newArrayList(userPage.iterator()));
         return userGrid;
+    }
+
+    @RequestMapping(value = "/addEditUserGroup", method = RequestMethod.POST)
+    @ResponseBody
+    public boolean addEditUserGroup(User user) {
+        for (BigDecimal rolegroupId : user.getRoleGroupIds()) {
+            RoleGroup roleGroup = new RoleGroup();
+            roleGroup.setId(rolegroupId.intValue());
+            user.getRoleGroups().add(roleGroup);
+        }
+
+        ShaPasswordEncoder d = new ShaPasswordEncoder();
+        user.setPassword(d.encodePassword(user.getPassword(), null));
+        User userSaved = userService.save(user);
+
+        if (userSaved == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @RequestMapping(value = "/listRoleGroup", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public List<RoleGroup> listRoleGroup() {
+        List<RoleGroup> roleGroups = roleGroupService.findAllRoleGroups();
+        return roleGroups;
+    }
+
+    @RequestMapping(value = "/editUserGroup", method = RequestMethod.POST, produces = "application/json")
+    @ResponseBody
+    public User editUserGroup(@RequestParam(value = "id") Integer id) {
+        User user = userService.findUserByUserId(id);
+        return user;
     }
 }
